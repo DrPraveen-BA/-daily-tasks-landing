@@ -338,19 +338,28 @@
     const STORAGE_KEY = 'daily-tasks';
 
     function todayStr() {
-      return new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
+      const d = new Date();
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
     }
 
     function loadTasks() {
       try {
-        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        return Array.isArray(parsed) ? parsed : [];
       } catch {
         return [];
       }
     }
 
     function saveTasks(tasks) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+      } catch (e) {
+        console.warn('daily-tasks: could not save to localStorage', e);
+      }
     }
 
     function generateId() {
