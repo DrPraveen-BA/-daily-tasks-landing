@@ -120,6 +120,7 @@
       transition: background 0.15s;
     }
     .add-btn:hover { background: #4f46e5; }
+    .add-btn:focus-visible { outline: 2px solid #818cf8; outline-offset: 2px; }
 
     /* ── Priority sections ── */
     .sections { padding: 8px 0; }
@@ -238,12 +239,15 @@
     }
     .task-item:hover .delete-btn { opacity: 1; }
     .delete-btn:hover { color: #f87171; }
+    @media (hover: none) {
+      .delete-btn { opacity: 0.5; }
+    }
 
     /* ── Empty state ── */
     .empty-state {
       text-align: center;
       padding: 40px 28px;
-      color: #312e81;
+      color: #818cf8;
       font-size: 13px;
     }
 
@@ -259,7 +263,7 @@
     }
     .footer-hint {
       font-size: 11px;
-      color: #312e81;
+      color: #4f46e5;
     }
     .clear-btn {
       font-size: 11px;
@@ -271,6 +275,14 @@
       transition: color 0.15s;
     }
     .clear-btn:hover { color: #818cf8; }
+    .clear-btn:focus-visible { outline: 2px solid #818cf8; outline-offset: 2px; }
+
+    /* ── Accessibility ── */
+    .sr-only {
+      position: absolute; width: 1px; height: 1px;
+      padding: 0; margin: -1px; overflow: hidden;
+      clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+    }
   </style>
 </head>
 <body>
@@ -291,14 +303,18 @@
 
     <!-- Add task bar -->
     <div class="add-bar">
+      <label for="title-input" class="sr-only">Task title</label>
       <input type="text" id="title-input" placeholder="Add a task..." autocomplete="off">
+      <label for="category-input" class="sr-only">Category</label>
       <input type="text" id="category-input" placeholder="Category" list="category-list" autocomplete="off">
       <datalist id="category-list"></datalist>
+      <label for="priority-select" class="sr-only">Priority</label>
       <select id="priority-select">
         <option value="high">High</option>
         <option value="medium" selected>Medium</option>
         <option value="low">Low</option>
       </select>
+      <label for="type-select" class="sr-only">Task type</label>
       <select id="type-select">
         <option value="one-off" selected>One-off</option>
         <option value="recurring">Recurring</option>
