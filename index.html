@@ -389,6 +389,93 @@
     const MONTHS = ['January','February','March','April','May','June',
                     'July','August','September','October','November','December'];
 
+    const PRIORITY_CONFIG = [
+      { key: 'high',   label: '⬆ High Priority',   cls: 'high'   },
+      { key: 'medium', label: '→ Medium Priority',  cls: 'medium' },
+      { key: 'low',    label: '↓ Low Priority',     cls: 'low'    },
+    ];
+
+    function renderTask(task) {
+      const today = todayStr();
+      const isDone = task.completedOn === today;
+      const el = document.createElement('div');
+      el.className = `task-item${isDone ? ' done' : ''}`;
+      el.dataset.id = task.id;
+
+      const checkbox = document.createElement('div');
+      checkbox.className = `task-checkbox${isDone ? ' checked' : ''}`;
+      checkbox.addEventListener('click', () => toggleTask(task.id));
+
+      const title = document.createElement('span');
+      title.className = 'task-title';
+      title.textContent = task.title;
+
+      const catBadge = document.createElement('span');
+      catBadge.className = 'category-badge';
+      catBadge.textContent = task.category;
+
+      const delBtn = document.createElement('button');
+      delBtn.className = 'delete-btn';
+      delBtn.textContent = '×';
+      delBtn.title = 'Delete task';
+      delBtn.addEventListener('click', () => deleteTask(task.id));
+
+      el.appendChild(checkbox);
+      el.appendChild(title);
+      el.appendChild(catBadge);
+
+      if (task.type === 'recurring') {
+        const recBadge = document.createElement('span');
+        recBadge.className = 'recurring-badge';
+        recBadge.textContent = '↺ daily';
+        el.appendChild(recBadge);
+      }
+
+      el.appendChild(delBtn);
+      return el;
+    }
+
+    function renderSections() {
+      const container = document.getElementById('sections');
+      container.innerHTML = '';
+
+      if (tasks.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'empty-state';
+        empty.textContent = 'No tasks yet — add one above';
+        container.appendChild(empty);
+        return;
+      }
+
+      const today = todayStr();
+
+      PRIORITY_CONFIG.forEach(({ key, label, cls }) => {
+        const group = tasks.filter(t => t.priority === key);
+        if (group.length === 0) return;
+
+        const section = document.createElement('div');
+        section.className = 'priority-section';
+
+        const remaining = group.filter(t => t.completedOn !== today).length;
+
+        const header = document.createElement('div');
+        header.className = 'section-header';
+        header.innerHTML = `
+          <span class="section-label ${cls}">${label}</span>
+          <span class="section-count">${remaining} remaining</span>
+        `;
+        section.appendChild(header);
+
+        // Done tasks go to bottom of their section
+        const sorted = [
+          ...group.filter(t => t.completedOn !== today),
+          ...group.filter(t => t.completedOn === today),
+        ];
+        sorted.forEach(t => section.appendChild(renderTask(t)));
+        container.appendChild(section);
+      });
+    }
+
     function renderHeader() {
       const now = new Date();
       document.getElementById('day-name').textContent = DAYS[now.getDay()];
@@ -407,7 +494,7 @@
 
     function render() {
       renderHeader();
-      // renderSections() added in Task 4
+      renderSections();
     }
 
     // Initial render
