@@ -333,7 +333,46 @@
   </div>
 
   <script>
-    // Script filled in by subsequent tasks
+    // ── State & Storage ──────────────────────────────────────────────────────────
+
+    const STORAGE_KEY = 'daily-tasks';
+
+    function todayStr() {
+      return new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
+    }
+
+    function loadTasks() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveTasks(tasks) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+    }
+
+    function generateId() {
+      return Date.now().toString(36) + Math.random().toString(36).slice(2);
+    }
+
+    // ── Daily Reset ───────────────────────────────────────────────────────────────
+
+    function applyDailyReset(tasks) {
+      const today = todayStr();
+      return tasks.map(task => {
+        if (task.type === 'recurring' && task.completedOn !== today) {
+          return { ...task, completedOn: null };
+        }
+        return task;
+      });
+    }
+
+    // ── Bootstrap ─────────────────────────────────────────────────────────────────
+
+    let tasks = applyDailyReset(loadTasks());
+    saveTasks(tasks); // persist reset immediately
   </script>
 </body>
 </html>
