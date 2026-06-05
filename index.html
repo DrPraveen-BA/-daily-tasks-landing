@@ -535,6 +535,20 @@
       updateCategoryDatalist();
     }
 
+    function clearCompleted() {
+      const today = todayStr();
+      // Remove completed one-off tasks; leave recurring (they reset tomorrow)
+      tasks = tasks.filter(task => {
+        if (task.type === 'one-off' && task.completedOn === today) return false;
+        return true;
+      });
+      saveTasks(tasks);
+      render();
+      updateCategoryDatalist();
+    }
+
+    document.getElementById('clear-btn').addEventListener('click', clearCompleted);
+
     function addTask() {
       const titleInput = document.getElementById('title-input');
       const title = titleInput.value.trim();
