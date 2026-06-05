@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daily Tasks</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0d0d1a;
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 32px 16px 64px;
+      color: #e0e7ff;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 680px;
+      background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 60%, #14172b 100%);
+      border-radius: 16px;
+      border: 1px solid rgba(99,102,241,0.3);
+      overflow: hidden;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(99,102,241,0.1);
+    }
+
+    /* ── Header ── */
+    .header {
+      padding: 24px 28px 20px;
+      border-bottom: 1px solid rgba(99,102,241,0.2);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .date-block .day-name {
+      font-size: 12px;
+      color: #818cf8;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .date-block .full-date {
+      font-size: 22px;
+      color: #e0e7ff;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+    .progress-block {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+      padding-top: 4px;
+    }
+    .progress-label {
+      font-size: 11px;
+      color: #34d399;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+    .progress-bar-wrap {
+      width: 120px;
+      height: 6px;
+      background: rgba(99,102,241,0.2);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #6366f1, #34d399);
+      border-radius: 99px;
+      transition: width 0.3s ease;
+    }
+
+    /* ── Add task bar ── */
+    .add-bar {
+      padding: 14px 28px;
+      border-bottom: 1px solid rgba(99,102,241,0.15);
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .add-bar input[type="text"],
+    .add-bar select {
+      background: rgba(99,102,241,0.1);
+      border: 1px solid rgba(99,102,241,0.25);
+      border-radius: 8px;
+      padding: 8px 12px;
+      color: #c7d2fe;
+      font-size: 13px;
+      outline: none;
+      font-family: inherit;
+    }
+    .add-bar input[type="text"]::placeholder { color: #4338ca; }
+    .add-bar input[type="text"]:focus,
+    .add-bar select:focus {
+      border-color: rgba(99,102,241,0.6);
+    }
+    #title-input { flex: 1; min-width: 140px; }
+    #category-input { width: 110px; }
+    #priority-select { width: 100px; }
+    #type-select { width: 110px; }
+    .add-bar select option { background: #1e1b4b; }
+    .add-btn {
+      background: #6366f1;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 16px;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+    .add-btn:hover { background: #4f46e5; }
+
+    /* ── Priority sections ── */
+    .sections { padding: 8px 0; }
+    .priority-section { padding: 12px 28px; }
+    .priority-section + .priority-section {
+      border-top: 1px solid rgba(99,102,241,0.12);
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .section-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .section-label.high  { color: #f87171; }
+    .section-label.medium { color: #fbbf24; }
+    .section-label.low   { color: #818cf8; }
+    .section-count {
+      font-size: 10px;
+      color: #4338ca;
+      background: rgba(99,102,241,0.15);
+      padding: 1px 8px;
+      border-radius: 99px;
+    }
+
+    /* ── Task items ── */
+    .task-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(99,102,241,0.08);
+      border: 1px solid rgba(99,102,241,0.15);
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 6px;
+      transition: background 0.15s;
+      position: relative;
+    }
+    .task-item:last-child { margin-bottom: 0; }
+    .task-item:hover { background: rgba(99,102,241,0.13); }
+    .task-item.done { opacity: 0.5; }
+
+    .task-checkbox {
+      width: 16px;
+      height: 16px;
+      border: 1.5px solid #4338ca;
+      border-radius: 4px;
+      flex-shrink: 0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, border-color 0.15s;
+      user-select: none;
+    }
+    .task-checkbox.checked {
+      background: #34d399;
+      border-color: #34d399;
+    }
+    .task-checkbox.checked::after {
+      content: '';
+      display: block;
+      width: 8px;
+      height: 5px;
+      border-left: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+      transform: rotate(-45deg) translateY(-1px);
+    }
+
+    .task-title {
+      font-size: 13px;
+      color: #c7d2fe;
+      flex: 1;
+    }
+    .task-item.done .task-title {
+      text-decoration: line-through;
+      color: #4338ca;
+    }
+
+    .category-badge {
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 99px;
+      background: rgba(99,102,241,0.2);
+      color: #818cf8;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+    .recurring-badge {
+      font-size: 9px;
+      padding: 1px 6px;
+      border-radius: 99px;
+      background: rgba(52,211,153,0.1);
+      color: #34d399;
+      border: 1px solid rgba(52,211,153,0.25);
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+    .delete-btn {
+      background: none;
+      border: none;
+      color: #4338ca;
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+      padding: 2px 4px;
+      border-radius: 4px;
+      opacity: 0;
+      transition: opacity 0.15s, color 0.15s;
+      flex-shrink: 0;
+    }
+    .task-item:hover .delete-btn { opacity: 1; }
+    .delete-btn:hover { color: #f87171; }
+
+    /* ── Empty state ── */
+    .empty-state {
+      text-align: center;
+      padding: 40px 28px;
+      color: #312e81;
+      font-size: 13px;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      padding: 12px 28px;
+      border-top: 1px solid rgba(99,102,241,0.15);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .footer-hint {
+      font-size: 11px;
+      color: #312e81;
+    }
+    .clear-btn {
+      font-size: 11px;
+      color: #4338ca;
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-family: inherit;
+      transition: color 0.15s;
+    }
+    .clear-btn:hover { color: #818cf8; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Header -->
+    <div class="header">
+      <div class="date-block">
+        <div class="day-name" id="day-name"></div>
+        <div class="full-date" id="full-date"></div>
+      </div>
+      <div class="progress-block">
+        <div class="progress-label" id="progress-label">0 of 0 done</div>
+        <div class="progress-bar-wrap">
+          <div class="progress-bar" id="progress-bar" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add task bar -->
+    <div class="add-bar">
+      <input type="text" id="title-input" placeholder="Add a task..." autocomplete="off">
+      <input type="text" id="category-input" placeholder="Category" list="category-list" autocomplete="off">
+      <datalist id="category-list"></datalist>
+      <select id="priority-select">
+        <option value="high">High</option>
+        <option value="medium" selected>Medium</option>
+        <option value="low">Low</option>
+      </select>
+      <select id="type-select">
+        <option value="one-off" selected>One-off</option>
+        <option value="recurring">Recurring</option>
+      </select>
+      <button class="add-btn" id="add-btn">+ Add</button>
+    </div>
+
+    <!-- Priority sections injected here by JS -->
+    <div class="sections" id="sections"></div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <span class="footer-hint">Recurring tasks reset at midnight &middot; One-off tasks carry over</span>
+      <button class="clear-btn" id="clear-btn">Clear completed</button>
+    </div>
+  </div>
+
+  <script>
+    // Script filled in by subsequent tasks
+  </script>
+</body>
+</html>
