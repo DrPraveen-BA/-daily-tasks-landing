@@ -507,7 +507,12 @@
       const used = tasks.map(t => t.category).filter(Boolean);
       const all = [...new Set([...defaults, ...used])];
       const list = document.getElementById('category-list');
-      list.innerHTML = all.map(c => `<option value="${c}"></option>`).join('');
+      list.innerHTML = '';
+      all.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c;
+        list.appendChild(opt);
+      });
     }
 
     function addTask() {
