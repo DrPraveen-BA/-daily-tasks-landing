@@ -499,6 +499,51 @@
 
     // Initial render
     render();
+
+    // ── Actions ───────────────────────────────────────────────────────────────────
+
+    function updateCategoryDatalist() {
+      const defaults = ['Work', 'Personal', 'Health'];
+      const used = tasks.map(t => t.category).filter(Boolean);
+      const all = [...new Set([...defaults, ...used])];
+      const list = document.getElementById('category-list');
+      list.innerHTML = all.map(c => `<option value="${c}"></option>`).join('');
+    }
+
+    function addTask() {
+      const titleInput = document.getElementById('title-input');
+      const title = titleInput.value.trim();
+      if (!title) {
+        titleInput.focus();
+        return;
+      }
+      const category = document.getElementById('category-input').value.trim() || 'General';
+      const priority = document.getElementById('priority-select').value;
+      const type     = document.getElementById('type-select').value;
+
+      const task = {
+        id: generateId(),
+        title,
+        priority,
+        category,
+        type,
+        completedOn: null,
+      };
+
+      tasks = [...tasks, task];
+      saveTasks(tasks);
+      titleInput.value = '';
+      render();
+      updateCategoryDatalist();
+    }
+
+    document.getElementById('add-btn').addEventListener('click', addTask);
+    document.getElementById('title-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') addTask();
+    });
+
+    // Populate datalist on load
+    updateCategoryDatalist();
   </script>
 </body>
 </html>
