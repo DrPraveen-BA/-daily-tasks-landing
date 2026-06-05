@@ -194,6 +194,10 @@
       border-bottom: 2px solid #fff;
       transform: rotate(-45deg) translateY(-1px);
     }
+    .task-checkbox:focus-visible {
+      outline: 2px solid #818cf8;
+      outline-offset: 2px;
+    }
 
     .task-title {
       font-size: 13px;
@@ -294,7 +298,7 @@
         <div class="full-date" id="full-date"></div>
       </div>
       <div class="progress-block">
-        <div class="progress-label" id="progress-label">0 of 0 done</div>
+        <div class="progress-label" id="progress-label" role="status" aria-live="polite">0 of 0 done</div>
         <div class="progress-bar-wrap">
           <div class="progress-bar" id="progress-bar" style="width:0%"></div>
         </div>
@@ -404,7 +408,14 @@
 
       const checkbox = document.createElement('div');
       checkbox.className = `task-checkbox${isDone ? ' checked' : ''}`;
+      checkbox.setAttribute('tabindex', '0');
+      checkbox.setAttribute('role', 'checkbox');
+      checkbox.setAttribute('aria-checked', isDone ? 'true' : 'false');
+      checkbox.setAttribute('aria-label', task.title);
       checkbox.addEventListener('click', () => toggleTask(task.id));
+      checkbox.addEventListener('keydown', e => {
+        if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggleTask(task.id); }
+      });
 
       const title = document.createElement('span');
       title.className = 'task-title';
@@ -418,6 +429,7 @@
       delBtn.className = 'delete-btn';
       delBtn.textContent = '×';
       delBtn.title = 'Delete task';
+      delBtn.setAttribute('aria-label', 'Delete task');
       delBtn.addEventListener('click', () => deleteTask(task.id));
 
       el.appendChild(checkbox);
