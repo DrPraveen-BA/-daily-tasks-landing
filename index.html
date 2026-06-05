@@ -515,6 +515,26 @@
       });
     }
 
+    function toggleTask(id) {
+      const today = todayStr();
+      tasks = tasks.map(task => {
+        if (task.id !== id) return task;
+        return {
+          ...task,
+          completedOn: task.completedOn === today ? null : today,
+        };
+      });
+      saveTasks(tasks);
+      render();
+    }
+
+    function deleteTask(id) {
+      tasks = tasks.filter(task => task.id !== id);
+      saveTasks(tasks);
+      render();
+      updateCategoryDatalist();
+    }
+
     function addTask() {
       const titleInput = document.getElementById('title-input');
       const title = titleInput.value.trim();
