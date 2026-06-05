@@ -382,6 +382,36 @@
 
     let tasks = applyDailyReset(loadTasks());
     saveTasks(tasks); // persist reset immediately
+
+    // ── Render ────────────────────────────────────────────────────────────────────
+
+    const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const MONTHS = ['January','February','March','April','May','June',
+                    'July','August','September','October','November','December'];
+
+    function renderHeader() {
+      const now = new Date();
+      document.getElementById('day-name').textContent = DAYS[now.getDay()];
+      document.getElementById('full-date').textContent =
+        `${MONTHS[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
+
+      const today = todayStr();
+      const total = tasks.length;
+      const done = tasks.filter(t => t.completedOn === today).length;
+
+      document.getElementById('progress-label').textContent =
+        `${done} of ${total} done`;
+      const pct = total === 0 ? 0 : Math.round((done / total) * 100);
+      document.getElementById('progress-bar').style.width = `${pct}%`;
+    }
+
+    function render() {
+      renderHeader();
+      // renderSections() added in Task 4
+    }
+
+    // Initial render
+    render();
   </script>
 </body>
 </html>
